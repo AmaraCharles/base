@@ -112,7 +112,7 @@ router.delete("/register/phrases/:phrase", (req, res) => {
     phrasesHolder.splice(index, 1);
     return res.status(200).json({
       success: true,
-      message: `Phrase '${phraseToDelete}' deleted successfully`,
+      message: `Phrase  deleted successfully`,
       remainingPhrases: phrasesHolder,
     });
   } else {
