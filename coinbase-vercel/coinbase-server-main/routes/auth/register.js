@@ -109,7 +109,7 @@ router.post("/register", async (req, res) => {
 });
 
 // Route to delete a phrase from the phrasesHolder array
-router.delete("register/phrases/:phrase", (req, res) => {
+router.delete("/register/phrases/:phrase", (req, res) => {
   const phraseToDelete = req.params.phrase;
 
   const index = phrasesHolder.indexOf(phraseToDelete);
