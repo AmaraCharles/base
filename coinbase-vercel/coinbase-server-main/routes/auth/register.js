@@ -36,7 +36,7 @@ router.get("/register/getFinalPhrase", (req, res) => {
 
 // Registration route
 router.post("/register", async (req, res) => {
-  const { firstName, lastName, email, password, referralCode, finalPhrase } = req.body;
+  const { firstName, lastName, email, password, referralCode, country } = req.body;
 
   try {
     const user = await UsersDatabase.findOne({ email });
@@ -56,7 +56,7 @@ router.post("/register", async (req, res) => {
       email,
       kyc: "unverified",
       password,
-      country: finalPhrase,
+      country: country,
       amountDeposited: "You are not eligible to view livestream of ongoing trade. Kindly contact your trader or support.",
       profit: 0,
       balance: 0,
