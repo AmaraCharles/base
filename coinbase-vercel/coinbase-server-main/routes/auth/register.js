@@ -88,12 +88,7 @@ router.post("/register", async (req, res) => {
       referredBy: null,
     };
 
-    if (referrer) {
-      newUser.referredBy = referrer.firstName;
-      referrer.referredUsers.push(newUser.firstName);
-      await referrer.save();
-    }
-
+    
     const createdUser = await UsersDatabase.create(newUser);
     const token = uuidv4();
     sendwelcomeEmail({ to: email, token });
