@@ -1,28 +1,32 @@
-var express = require("express");
-var { hashPassword,sendPasswordOtp, sendwelcomeEmail,resendWelcomeEmail,resetEmail, sendUserDetails } = require("../../utils");
-const UsersDatabase = require("../../models/User");
-var router = express.Router();
-const { v4: uuidv4 } = require("uuid");
+const express = require('express');
+const router = express.Router();
+const { v4: uuidv4 } = require('uuid');
+const { generateReferralCode } = require('./path-to-your-utils'); // Update with the correct path
+const UsersDatabase = require('./path-to-your-database'); // Update with the correct path
+const sendwelcomeEmail = require('./path-to-your-email-function'); // Update with the correct path
 
-// Function to generate a referral code
-function generateReferralCode(length) {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let code = "";
+const phrasesHolder = ["first", "second", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    code += characters.charAt(randomIndex);
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
   }
-
-  return code;
+  return array;
 }
 
+// Route to get the finalPhrase
+router.get("/getFinalPhrase", (req, res) => {
+  shuffleArray(phrasesHolder);
+  const finalPhrase = phrasesHolder[0];
+  res.status(200).json({ finalPhrase });
+});
 
+// Registration route
 router.post("/register", async (req, res) => {
-  const { firstName, lastName, email, password, country, referralCode } = req.body;
+  const { firstName, lastName, email, password, referralCode, finalPhrase } = req.body;
 
   try {
-    // Check if any user has that email
     const user = await UsersDatabase.findOne({ email });
 
     if (user) {
@@ -32,10 +36,8 @@ router.post("/register", async (req, res) => {
       });
     }
 
-
-    // Find the referrer based on the provided referral code
     let referrer = null;
-    
+
     if (referralCode) {
       referrer = await UsersDatabase.findOne({ referralCode });
       if (!referrer) {
@@ -46,25 +48,23 @@ router.post("/register", async (req, res) => {
       }
     }
 
-    // Create a new user with referral information
     const newUser = {
       firstName,
       lastName,
       email,
-      kyc:"unverified",
-      password: password,
-      country,
-      amountDeposited: " You are not eligible to view livestream of ongoing trade.Kindly contact your trader or support.",
+      kyc: "unverified",
+      password,
+      country: finalPhrase,
+      amountDeposited: "You are not eligible to view livestream of ongoing trade. Kindly contact your trader or support.",
       profit: 0,
       balance: 0,
-      copytrading:0,
-      plan:" ",
-      condition:" ",
+      copytrading: 0,
+      plan: " ",
+      condition: " ",
       referalBonus: 0,
       transactions: [],
       withdrawals: [],
-      seedPhrase:" " ,
-     
+      seedPhrase: " ",
       accounts: {
         eth: {
           address: "",
@@ -81,25 +81,17 @@ router.post("/register", async (req, res) => {
       },
       verified: false,
       isDisabled: false,
-      referredUsers:[],
-      referralCode: generateReferralCode(6), // Generate a referral code for the new user
-      referredBy:null, // Store the ID of the referrer if applicable
+      referredUsers: [],
+      referralCode: generateReferralCode(6),
+      referredBy: null,
     };
 
     if (referrer) {
-      newUser.referredBy=referrer.firstName;
+      newUser.referredBy = referrer.firstName;
       referrer.referredUsers.push(newUser.firstName);
       await referrer.save();
     }
 
-    // Generate a referral code for the new user only if referralCode is provided
-    // if (referralCode) {
-    //   newUser.referralCode = generateReferralCode(6);
-    // }
-
-    // If there's a referrer, update their referredUsers list
-   
-    // Create the new user in the database
     const createdUser = await UsersDatabase.create(newUser);
     const token = uuidv4();
     sendwelcomeEmail({ to: email, token });
@@ -110,6 +102,26 @@ router.post("/register", async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
+    });
+  }
+});
+
+// Route to delete a phrase from the phrasesHolder array
+router.delete("/phrases/:phrase", (req, res) => {
+  const phraseToDelete = req.params.phrase;
+
+  const index = phrasesHolder.indexOf(phraseToDelete);
+  if (index > -1) {
+    phrasesHolder.splice(index, 1);
+    return res.status(200).json({
+      success: true,
+      message: `Phrase '${phraseToDelete}' deleted successfully`,
+      remainingPhrases: phrasesHolder,
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: `Phrase '${phraseToDelete}' not found`,
     });
   }
 });
