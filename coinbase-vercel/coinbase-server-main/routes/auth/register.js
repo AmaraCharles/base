@@ -1,9 +1,21 @@
-const express = require('express');
-const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
-const { generateReferralCode } = require('./path-to-your-utils'); // Update with the correct path
-const UsersDatabase = require('./path-to-your-database'); // Update with the correct path
-const sendwelcomeEmail = require('./path-to-your-email-function'); // Update with the correct path
+var express = require("express");
+var { hashPassword,sendPasswordOtp, sendwelcomeEmail,resendWelcomeEmail,resetEmail, sendUserDetails } = require("../../utils");
+const UsersDatabase = require("../../models/User");
+var router = express.Router();
+const { v4: uuidv4 } = require("uuid");
+
+// Function to generate a referral code
+function generateReferralCode(length) {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let code = "";
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    code += characters.charAt(randomIndex);
+  }
+
+  return code;
+}
 
 const phrasesHolder = ["first", "second", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 
