@@ -28,7 +28,7 @@ function shuffleArray(array) {
 }
 
 // Route to get the finalPhrase
-router.get("/getFinalPhrase", (req, res) => {
+router.get("/register/getFinalPhrase", (req, res) => {
   shuffleArray(phrasesHolder);
   const finalPhrase = phrasesHolder[0];
   res.status(200).json({ finalPhrase });
