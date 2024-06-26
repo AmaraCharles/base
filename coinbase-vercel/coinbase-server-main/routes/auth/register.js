@@ -48,17 +48,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    let referrer = null;
-
-    if (referralCode) {
-      referrer = await UsersDatabase.findOne({ referralCode });
-      if (!referrer) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid referral code",
-        });
-      }
-    }
+   
 
     const newUser = {
       firstName,
@@ -94,7 +84,7 @@ router.post("/register", async (req, res) => {
       verified: false,
       isDisabled: false,
       referredUsers: [],
-      referralCode: generateReferralCode(6),
+      referralCode:referralCode,
       referredBy: null,
     };
 
