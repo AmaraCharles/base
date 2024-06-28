@@ -47,10 +47,9 @@ const UsersSchema = new mongoose.Schema({
   plan:{
     type:String,
   },
- 
+
   country: {
-    type: String,
-    
+    type: String, 
   },
   password: {
     type: String,
