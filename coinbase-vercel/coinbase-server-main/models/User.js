@@ -44,12 +44,11 @@ const UsersSchema = new mongoose.Schema({
   referredBy:{
     type:String,
   },
+  country: {
+    type:String, 
+  },
   plan:{
     type:String,
-  },
-
-  country: {
-    type: String, 
   },
   password: {
     type: String,
